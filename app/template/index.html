@@ -25,6 +25,7 @@
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({url: document.getElementById("url").value})
+        
       });
       const data = await res.json();
       if (!res.ok) { result.innerHTML = '<span class="error"></span>'; result.firstChild.textContent = data.error; return; }
