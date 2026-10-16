@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>URL Shortener</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 36rem; margin: 4rem auto; padding: 0 1rem; }
+    input { width: 100%; padding: .6rem; box-sizing: border-box; margin-bottom: .6rem; }
+    button { padding: .6rem 1.2rem; cursor: pointer; }
+    #result { margin-top: 1rem; word-break: break-all; }
+    .error { color: #b00020; }
+  </style>
+</head>
+<body>
+  <h1>URL Shortener</h1>
+  <input id="url" type="url" placeholder="https://example.com/a/very/long/link" autofocus>
+  <button id="go">Shorten</button>
+  <div id="result"></div>
+  <script>
+    const result = document.getElementById("result");
+    document.getElementById("go").addEventListener("click", async () => {
+      result.textContent = "";
+      const res = await fetch("/api/shorten", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({url: document.getElementById("url").value})
+        
+      });
+      const data = await res.json();
+      if (!res.ok) { result.innerHTML = '<span class="error"></span>'; result.firstChild.textContent = data.error; return; }
+      const a = document.createElement("a");
+      a.href = data.short_url; a.textContent = data.short_url;
+      result.appendChild(a);
+    });
+  </script>
+</body>
+</html>
