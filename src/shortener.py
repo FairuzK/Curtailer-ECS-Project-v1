@@ -39,3 +39,31 @@ def validate_url(url: str, own_host: str):
     if parsed.netloc.lower() == own_host.lower():
         return "refusing to shorten a link to this service"
     return None
+
+# App factory and database setup
+def create_app(test_config=None):
+    app = Flask(__name__)
+    app.config.update(
+        DB_PATH=os.environ.get("DB_PATH", "data/urls.db"),
+        APP_VERSION=os.environ.get("APP_VERSION", "dev"),
+    )
+    if test_config:
+        app.config.update(test_config)
+
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+
+    os.makedirs(os.path.dirname(os.path.abspath(app.config["DB_PATH"])), exist_ok=True)
+    with closing(sqlite3.connect(app.config["DB_PATH"])) as conn:
+        conn.executescript(SCHEMA)
+
+    def get_db():
+        if "db" not in g:
+            g.db = sqlite3.connect(app.config["DB_PATH"], timeout=10)
+            g.db.row_factory = sqlite3.Row
+        return g.db
+
+    @app.teardown_appcontext
+    def close_db(_exc):
+        db = g.pop("db", None)
+        if db is not None:
+            db.close()
