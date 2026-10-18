@@ -1,0 +1,10 @@
+.git
+.github
+terraform
+docs
+tests
+**/__pycache__
+.venv
+data
+*.db
+*.md
