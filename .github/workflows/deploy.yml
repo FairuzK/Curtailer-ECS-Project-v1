@@ -20,6 +20,7 @@ jobs:
           cache-dependency-path: requirements-dev.txt
       - run: pip install -r requirements-dev.txt
       - run: pytest -q
+      
 
   terraform-validate:
     runs-on: ubuntu-latest
